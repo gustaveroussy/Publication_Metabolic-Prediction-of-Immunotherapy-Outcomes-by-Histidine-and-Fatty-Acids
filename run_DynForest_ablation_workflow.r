@@ -38,6 +38,7 @@ results_ablation_iteration_SABR_IML1 <- readRDS("/Users/deborahsuissa/Desktop/re
 # =================================================================
 
 res_dyn_OOB_all <- list()
+IBS.max <- NULL
 for (iteration_num in 145:158) {
   cat(paste0(">>> Traitement de iteration_", iteration_num, "...\n"))
   dynforest_obj = results_ablation_iteration_SABR_IML1[[paste0("iteration_", iteration_num)]]$model
