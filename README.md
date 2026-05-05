@@ -58,13 +58,14 @@ Provides performance assessment utilities:
 # Requirements
 
 - R (≥ 4.2)
-- Main dependencies:
-DynForest
-timeROC
-ggplot2, patchwork, ggalluvial
-dplyr, tidyverse
-pec, prodlim
-foreach, doParallel
+- Main dependencies:  
+DynForest  
+timeROC  
+nftbart  
+ggplot2, patchwork, ggalluvial  
+dplyr, tidyverse  
+pec, prodlim  
+foreach, doParallel  
 
 # Usage
 
