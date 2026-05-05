@@ -87,7 +87,7 @@ for (iteration_num in 145:158) {
     library(foreach)
     library(doParallel)
     pck <- .packages()
-    dir0 <- find.package()
+    dir0 <- find.package(pck)
     dir <- sapply(1:length(pck),function(k){gsub(pck[k],"",dir0[k])})
     parallel::clusterExport(cl,list("pck","dir"),envir=environment())
     parallel::clusterEvalQ(cl,sapply(1:length(pck),function(k){require(pck[k],lib.loc=dir[k],character.only=TRUE)}))
