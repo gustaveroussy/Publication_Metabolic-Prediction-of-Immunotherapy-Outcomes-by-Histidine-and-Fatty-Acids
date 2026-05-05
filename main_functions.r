@@ -7,7 +7,7 @@
 train_DynForest_model <- function(data, time_chr, event_chr, columns_metabolites, fixed_vars) {
   timeData_train <- data[, c("id_numeric", "distDebImmuno_months", columns_metabolites)]
   timeVarModel_train <- lapply(columns_metabolites, function(var) {
-    list(fixed = as.formula(paste(var, "~ distDebImmuno_months")), random = ~ distDebImmuno_months)
+    list(fixed = as.formula(paste0("`", var, "` ~ distDebImmuno_months")), random = ~ distDebImmuno_months)
   })
   names(timeVarModel_train) <- columns_metabolites
   timeData_train <- as.data.frame(timeData_train)
