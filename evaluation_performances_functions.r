@@ -61,8 +61,10 @@ predict_DynForest_model <- function(DynModel, time_chr, event_chr, data, landmar
   data_pred_IML <- data[data$id_numeric %in% id_pred, ]
   # Longitudinal data
   timeData_pred_IML <- data_pred_IML[, c("id_numeric", "distDebImmuno_months", columns_metabolites_here)]
-  # Fixed data (handled dynamically!)
-  fixedData_pred_IML <- unique(data_pred_IML[, c("id_numeric", fixed_vars)])
+  # Fixed data
+  fixedData_pred_IML <- if (!is.null(fixed_vars) && length(fixed_vars) > 0) {
+                            unique(data_pred_IML[, c("id_numeric", fixed_vars)])
+                        } else NULL
   # Prediction
   pred_dyn <- predict(
     object = DynModel,

@@ -1,4 +1,3 @@
-
 # ------------------------------
 # --- CORE FUNCTIONS ---
 # ------------------------------
@@ -11,10 +10,13 @@ train_DynForest_model <- function(data, time_chr, event_chr, columns_metabolites
   })
   names(timeVarModel_train) <- columns_metabolites
   timeData_train <- as.data.frame(timeData_train)
+  
   fixedData_train <- unique(data[, c("id_numeric", fixed_vars),drop=F])
+  fixedData_train <- if (!is.null(fixed_vars) && length(fixed_vars) > 0) {
+                        as.data.frame(unique(data[, c("id_numeric", fixed_vars), drop = FALSE]))
+                     } else NULL
   df <- as.data.frame(unique(data[, c("id_numeric", time_chr, event_chr)]))
   Y <- list(type = "surv", Y = df)
-  fixedData_train <- as.data.frame(fixedData_train)
   res_dyn_train <- dynforest(
     timeData = timeData_train,
     fixedData = fixedData_train,
