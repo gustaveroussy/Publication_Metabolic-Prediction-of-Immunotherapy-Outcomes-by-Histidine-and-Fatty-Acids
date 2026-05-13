@@ -7,15 +7,11 @@ get_AUC_model_based_on_pred <- function(pred, data, time_chr, event_chr, landmar
     # Transform predictions to scale 0-100
     pred_indiv_100 <- pred$pred_indiv * 100
     # Clean data based on time variable
-    if (time_chr == "PFS") {
-        data <- data %>% filter(!is.na(PFS), !is.na(PD))
-    } else if (time_chr == "OS") {
-        data <- data %>% filter(!is.na(OS), !is.na(Death))
-    }
+    data <- data %>% filter(!is.na(.data[[time_chr]]), !is.na(.data[[event_chr]]))
     # Keep only individuals present in pred_indiv_100
     data <- subset(data, as.character(id_numeric) %in% rownames(pred_indiv_100))
     # Select the first measure per individual
-    data <- data %>% dplyr::group_by(id_numeric) %>%dplyr::slice(which.min(distDebImmuno)) %>%dplyr::ungroup()
+    data <- data %>% dplyr::group_by(id_numeric) %>%dplyr::slice(which.min(distDebImmuno_months)) %>%dplyr::ungroup()
     # Prepare structures to store results
     AUC_s <- c()
     lower <- c()
