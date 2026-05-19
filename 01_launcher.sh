@@ -13,7 +13,7 @@
 module load singularity/3.10.5
 
 singularity exec --no-home -B /mnt/beegfs01/scratch/bioinfo_core/B26026_LAZI_01/ \
-/mnt/beegfs01/scratch/bioinfo_core/B26026_LAZI_01/script/R_SuissaD_2026.simg \
-Rscript /mnt/beegfs01/scratch/bioinfo_core/B26026_LAZI_01/script/01_main_workflow_reviewed.R
+/mnt/beegfs01/scratch/bioinfo_core/B26026_LAZI_01/script/Publication_Metabolic-Prediction-of-Immunotherapy-Outcomes-by-Histidine-and-Fatty-Acids/R_SuissaD_2026.simg \
+Rscript /mnt/beegfs01/scratch/bioinfo_core/B26026_LAZI_01/script/Publication_Metabolic-Prediction-of-Immunotherapy-Outcomes-by-Histidine-and-Fatty-Acids/01_main_workflow_reviewed.R
 
 echo "Finish!"
