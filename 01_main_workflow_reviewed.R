@@ -204,8 +204,19 @@ oob_df <- data.frame(
   IBS = as.numeric(unlist(res_dyn_OOB_all)))
 # Increasing order of iteration
 oob_df <- oob_df %>% arrange(iteration)
+# Filter
+oob_df <- oob_df %>%filter(iteration >=145)
+# Save IBS summary table
+oob_summary <- data.frame(
+  iteration = names(res_dyn_OOB_all),
+  IBS_median = sapply(res_dyn_OOB_all, function(x) median(x, na.rm = TRUE)),
+  IBS_mean   = sapply(res_dyn_OOB_all, function(x) mean(x, na.rm = TRUE)),
+  IBS_sd     = sapply(res_dyn_OOB_all, function(x) sd(x, na.rm = TRUE))
+) %>% arrange(iteration_num)
+print(oob_summary)
+dir.create(paste0(project_path,"data_output/performances_evaluation/"), showWarnings = FALSE, recursive = TRUE)
+write.csv(oob_summary, file = paste0(project_path, "data_output/performances_evaluation/IBS_summary_per_iteration.csv"), row.names = FALSE)
 # Plot
-oob_df <- oob_df %>%filter(iteration >=153)
 p <- ggplot(oob_df, aes(x = iteration, y = IBS)) +
   geom_point(size = 4, color = "steelblue") +
   geom_line(size = 1, color = "steelblue") +
@@ -215,8 +226,9 @@ p <- ggplot(oob_df, aes(x = iteration, y = IBS)) +
   theme(  plot.title = element_text(hjust = 0.5, face = "bold", size = 18),axis.title = element_text(face = "bold"), axis.text = element_text(color = "black"),panel.grid.major = element_line(color = "gray80"), panel.grid.minor = element_blank()) +
   scale_x_continuous(breaks = oob_df$iteration) +
   ylim(0, max(oob_df$IBS) * 1.1)
-dir.create(paste0(project_path,"data_output/performances_evaluation/"), showWarnings = FALSE, recursive = TRUE)
 ggsave(paste0(project_path,"data_output/performances_evaluation/IBS_ablation_model_SABR_IML1.pdf"), p, width = 8, height = 5)
+
+
 
 # --- PERFORMANCES EVALUATION: Calculation of internal AUC --- # 
 results_external_IML1_SABR_ablation_iteration_SABR_IML1 <- list()
@@ -260,13 +272,41 @@ if (!is.na(last_valid_iteration)) {
   cat("❌ No valid iteration found.\n")
 }
 
+# Transform into a dataframe
+df_auc <- imap_dfr(results_external_IML1_SABR_ablation_iteration_SABR_IML1, ~{
+  .x$AUC_table %>%
+    mutate(iteration = .y)
+})
 
+# Ensure right types
+df_auc <- df_auc %>%
+  mutate(
+    Time_months = as.numeric(Time_months),
+    AUC = as.numeric(AUC),
+    CI_lower = as.numeric(CI_lower),
+    CI_upper = as.numeric(CI_upper))
+# Save table
+write.csv(df_auc[df_auc$Time_months %in% c(6,12),], file = paste0(project_path, "data_output/performances_evaluation/validation_on_IML1_SABR_model_IML1_SABR_AUC_t6_t12.csv"), row.names = FALSE)
+# Plot
+p <- ggplot(df_auc, aes(x = Time_months, y = AUC, color = iteration)) +
+  geom_line(size = 1.2) +
+  geom_point(size = 2) +
+  geom_errorbar(aes(ymin = CI_lower, ymax = CI_upper), width = 0.6, size = 0.7) +
+  scale_y_continuous(limits = c(0, 100), breaks = seq(0, 100, 10)) +
+  labs(
+    title = "External Validation of DynForest Ablation iterations on PANDORE",
+    x = "Time (months)",
+    y = "AUC (%)",
+    color = "iteration"
+  ) +
+  theme_minimal(base_size = 14) +
+  theme(legend.position = "right", plot.title = element_text(face = "bold", size = 16, hjust = 0.5))
+ggsave(paste0(project_path,"data_output/performances_evaluation/validation_on_IML1_SABR_model_IML1_SABR.pdf"), p, width = 10, height = 6)
 
 
 
 # --- PERFORMANCES EVALUATION: Calculation of external AUC --- # 
 # Load external data
-# Load data (replace comma by point and convert into numeric automatically)
 data_for_ablation_iteration_PANDORE <- read_excel(paste0(project_path,"com/input/Table_Repo_Hist_Group_cohorts_VF2.xlsx"), sheet = 3, skip = 1)
 
 # Convert ID into numeric and rename columns
@@ -340,7 +380,9 @@ df_auc <- df_auc %>%
     AUC = as.numeric(AUC),
     CI_lower = as.numeric(CI_lower),
     CI_upper = as.numeric(CI_upper))
-
+# Save table
+write.csv(df_auc[df_auc$Time_months %in% c(6,12),], file = paste0(project_path, "data_output/performances_evaluation/validation_on_PANDORE_model_IML1_SABR_AUC_t6_t12.csv"), row.names = FALSE)
+# Plot
 p <- ggplot(df_auc, aes(x = Time_months, y = AUC, color = iteration)) +
   geom_line(size = 1.2) +
   geom_point(size = 2) +
@@ -354,7 +396,7 @@ p <- ggplot(df_auc, aes(x = Time_months, y = AUC, color = iteration)) +
   ) +
   theme_minimal(base_size = 14) +
   theme(legend.position = "right", plot.title = element_text(face = "bold", size = 16, hjust = 0.5))
-ggsave(paste0(project_path,"data_output/performances_evaluation/validation_on_PANDORE_model_IML1_SABR_153_154_155.pdf"), p, width = 10, height = 6)
+ggsave(paste0(project_path,"data_output/performances_evaluation/validation_on_PANDORE_model_IML1_SABR.pdf"), p, width = 10, height = 6)
 
 # ===========================
 # --- Produce VIMP Plots ---
@@ -393,11 +435,16 @@ df_alluvial_results_ablation_iteration_SABR_IML1 <- df_mets_results_ablation_ite
   mutate(Predictor = factor(Predictor),
          iteration_num = parse_number(iteration)) # Extract iteration number
 # Identify last 6 dernières iterations
-last_iterations_num <- sort(unique(df_alluvial_results_ablation_iteration_SABR_IML1$iteration_num), decreasing = TRUE)[1:6] %>% sort()
+#last_iterations_num <- sort(unique(df_alluvial_results_ablation_iteration_SABR_IML1$iteration_num), decreasing = TRUE)[1:6] %>% sort()
+last_iterations_num <- sort(unique(df_alluvial_results_ablation_iteration_SABR_IML1$iteration_num), decreasing = TRUE)[1:31] %>% sort()
 last_iterations <- paste0("iteration_", last_iterations_num)
 df_alluvial_results_ablation_iteration_SABR_IML1 <- df_alluvial_results_ablation_iteration_SABR_IML1 %>%
   mutate(iteration = factor(iteration, levels = last_iterations),
          alluvium = Predictor) %>% filter(iteration %in% last_iterations)
+
+df_alluvial_results_ablation_iteration_SABR_IML1$Predictor <- gsub("Metabolite_", "", df_alluvial_results_ablation_iteration_SABR_IML1$Predictor)
+df_alluvial_results_ablation_iteration_SABR_IML1$alluvium <- gsub("Metabolite_", "", df_alluvial_results_ablation_iteration_SABR_IML1$alluvium)
+
 
 p <- ggplot(df_alluvial_results_ablation_iteration_SABR_IML1,
             aes(x = iteration, stratum = Predictor, alluvium = alluvium,
@@ -409,6 +456,6 @@ p <- ggplot(df_alluvial_results_ablation_iteration_SABR_IML1,
   guides(fill = FALSE) +
   labs(title = "Predictor flow across last 10 ablation iterations")
 dir.create(paste0(project_path,"data_output/Alluvial/"), showWarnings = FALSE, recursive = TRUE)
-ggsave(paste0(project_path,"data_output/Alluvial/df_alluvial_results_ablation_iteration_SABR_IML1_010725.pdf"), p, width = 20, height = 6)
+ggsave(paste0(project_path,"data_output/Alluvial/df_alluvial_results_ablation_iteration_SABR_IML1.pdf"), p, width = 30, height = 6)
 
 

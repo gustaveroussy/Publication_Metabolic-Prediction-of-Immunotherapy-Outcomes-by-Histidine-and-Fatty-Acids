@@ -103,12 +103,16 @@ extract_predictors_over_iterations <- function(results_ablation) {
       Predictor = mets,
       Class = "Metabolite",
       stringsAsFactors = FALSE)
-    df_fixed <- data.frame(
-      iteration = iteration_name,
-      Predictor = fixed,
-      Class = "Fixed",
-      stringsAsFactors = FALSE)
-    all_rows[[iteration_name]] <- rbind(df_mets, df_fixed)
+    if (!is.null(fixed) && length(fixed) > 0) {
+      df_fixed <- data.frame(
+        iteration = iteration_name,
+        Predictor = fixed,
+        Class     = "Fixed",
+        stringsAsFactors = FALSE)
+      all_rows[[iteration_name]] <- rbind(df_mets, df_fixed)
+    } else {
+      all_rows[[iteration_name]] <- df_mets
+    }
   }
   final_df <- do.call(rbind, all_rows)
   return(final_df)
