@@ -33,7 +33,7 @@ The review process was carried out in two stages:
 In this notebook we will perform comparisons of the following:  
 1. Model building (Variable Importance (VIMP) plots  , and Alluvial plots)  
 2. Performance evaluation on IML1_SABR internal cohort  
-3. Performance evaluation on PANDORA external cohort  
+3. Performance evaluation on PANDORE external cohort  
 
 ## Explanation of the analysis steps
 The goal is to predict whether a patient will respond to immunotherapy, using their blood metabolite measurements and clinical characteristics.  
@@ -186,15 +186,15 @@ knitr::kable(
 
 All iterations give very good results on internal IML1_SABR cohort as expected.
 
-## Performance evaluation on PANDORA external cohort
+## Performance evaluation on PANDORE external cohort
 
 **Publication:**  
 "The final MDL–selected model [...] achieved a 12 month-AUC of 73.1% (95% CI: 51.2–94.9) in PANDORE external validation (Fig. 1d-e, Fig. S3b)."
 
 Fig.1.e:  
-![p_PANDORA_eval](/mnt/beegfs01/scratch/bioinfo_core/B26026_LAZI_01/com/input/Fig1.e.png)  
+![p_PANDORE_eval](/mnt/beegfs01/scratch/bioinfo_core/B26026_LAZI_01/com/input/Fig1.e.png)  
 Fig.S3.b:  
-![p_PANDORA_eval](/mnt/beegfs01/scratch/bioinfo_core/B26026_LAZI_01/com/input/FigS3.b.png)  
+![p_PANDORE_eval](/mnt/beegfs01/scratch/bioinfo_core/B26026_LAZI_01/com/input/FigS3.b.png)  
 
 <br><br>
 
