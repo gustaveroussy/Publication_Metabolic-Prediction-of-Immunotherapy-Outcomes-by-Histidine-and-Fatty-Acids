@@ -1,0 +1,240 @@
+---
+title: "Publication Reviewing: Metabolic Prediction of Immunotherapy Outcomes by Histidine and Fatty Acids (D.Suissa et al., 2026)"
+date: "2026-05-20"
+author:
+  - name: "BiGR: Bioinformatics core facility of Gustave Roussy"
+    email: "bigr@gustaveroussy.fr"
+  - name: "Marine AGLAVE"
+    email: "marine.aglave@gustaveroussy.fr"
+output:
+  rmdformatsbigr::readthebigrdoc:
+    code_folding: show
+    thumbnails: false
+    lightbox: true
+    highlight: true
+    fig_caption: false
+
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+The aim of this review is to reproduce the major results of the publication Metabolic Prediction of Immunotherapy Outcomes by Histidine and Fatty Acids (D.Suissa et al., 2026), in order to verify their reproducibility and robustness.
+
+This analysis was performed by M. Aglave from BIGR platform (bigr@gustaveroussy.fr) in May 2026 based on the code and initial data, provided by L. Zitvogel's team.  
+The original code of the publication is available [here](https://github.com/gustaveroussy/Publication_Metabolic-Prediction-of-Immunotherapy-Outcomes-by-Histidine-and-Fatty-Acids/tree/main), and the reviewed code is available [here](https://github.com/gustaveroussy/Publication_Metabolic-Prediction-of-Immunotherapy-Outcomes-by-Histidine-and-Fatty-Acids/tree/reviewed).  
+
+The review process was carried out in two stages:  
+
+- regeneration of the results using the script 01_main_workflow_reviewed.R through a singularity image on the Gustave Roussy HPC.  
+- comparison of the results obtained with those presented in the publication in this notebook.  
+
+In this notebook we will perform comparisons of the following:  
+1. Model building (Variable Importance (VIMP) plots  , and Alluvial plots)  
+2. Performance evaluation on IML1+SABR internal cohort  
+3. Performance evaluation on PANDORA external cohort  
+
+## Explanation of the analysis steps
+The goal is to predict whether a patient will respond to immunotherapy, using their blood metabolite measurements and clinical characteristics.  
+
+**Step 1: The Random Forest**  
+The mathematical model is built using the DynForest method.  
+DynForest constructs 50 decision trees ("the forest"). Each tree learns to predict patient survival by asking a series of questions such as "Is this patient's histidine level above or below a certain threshold?" Each tree is trained on a random subsample of patients (the bootstrap—approximately 63% of patients), which means that each tree is slightly different. The final prediction is the average of all the trees, making the model much more robust than a single tree.  
+
+**Step 2: The Importance of Variables (VIMP)**  
+To determine which metabolites are most useful, the model calculates the VIMP (Variable Importance Permutation). It randomly swaps the values of a metabolite and measures how much its performance degrades. If performance drops significantly when a metabolite is permuted, it is considered highly informative. If performance remains unchanged, the metabolite provides no benefit.  
+
+**Step 3: Iterative Ablation**  
+We start with 154 metabolites and 6 clinical variables. At each iteration, we identify the predictor with the lowest VIMP (the least informative) and remove it. We retrain the model without it. This process is repeated until nothing is removed. This results in 160 nested models, from the most complex to the simplest.  
+
+**Step 4: Choosing the Best Model**  
+We compare the performance of each iteration using two metrics:  
+- the Integrated Brier Score (IBS): are the predicted probabilities accurate?  
+- the Area Under the ROC Curve (AUC): does the model effectively distinguish between patients who will progress and those who will not?  
+The best iteration is the one that combines the fewest predictors possible with the best performance. This is where we identify the most biologically relevant metabolites for predicting the response to immunotherapy.  
+
+**Step 5: Final Model Validation**  
+The final model was validated in two complementary steps. Internally, its performance was evaluated on out-of-bag samples (i.e., patients not used during the training of each tree) via IBS and AUC at 6 and 12 months. Externally, the model was then applied as is to an independent cohort (PANDORE) to confirm its generalizability to patients who had never contributed to its training, thus strengthening the biological and clinical robustness of the metabolites identified as predictors of response to immunotherapy.  
+
+**IBS Usual Scale:**  
+
+- IBS = 0.00 → perfect prediction (statistically impossible to achieve)  
+- IBS = 0.25 → bad model (predicts 50% for everyone)  
+- IBS > 0.25 → model worse than chance  
+
+In practice, the IBS should evolve over time and with each iteration: very high at the beginning of the iterations (model overfitted to the data), then decrease (noise is removed), down to a minimum value (optimal model), then increase again (too much data has been removed, therefore there is insufficient information). The best iteration is the one with the lowest IBS, corresponding to the most parsimonious and highest-performing model.  
+
+**AUC Usual Scale:**  
+
+- AUC = 0.50 → bad  
+- AUC = 0.70 → acceptable  
+- AUC = 0.80 → good  
+- AUC = 1.00 → perfect prediction (statistically impossible to achieve)  
+
+
+## Conclusion to recover
+
+"The final MDL–selected model retained eight predictors (Fig. 1c-d) and achieved a 12 month-AUC of 73.1% (95% CI: 51.2–94.9) in PANDORE external validation (Fig. 1d-e, Fig. S3b). The final signature at iteration 153 included two clinical features (age and BMI) and six metabolites: histidine, succinic acid, carnitine, docosatrienoic acid, hexadecanedioic acid, and creatinine, all contributing positively to the prediction of PFS (Fig. 1d). Notably, histidine emerged as the dominant predictor, exhibiting consistently high and positive %VIMP across all models (Fig. S3a.)."
+
+Although Age, BMI and Metabolic immune checkpoints (such as succinate and metabolites involved in lipid metabolism (carnitine, hexadecanedioic acid, docosatrienoic acid)) are cited as interesting predictors, the focus is on histidine as the major predictor.
+The model will be checked in the internal and external validation cohorts.
+
+## Model building
+
+In the publication, the chosen iteration is 153, comprising 2 clinical variables and 6 metabolites.
+
+#### Variable Importance (VIMP) plots
+
+**Publication:**  
+"VIMP analysis across all iterations confirmed that only iteration 152 and 153 contained exclusively positive %VIMP scores, indicating that each feature contributed constructively to the model's performance and reinforcing the validity of our Minimum Description Length (MDL)-based selection criteria (Fig. S3a)."  
+
+Fig.1.d:  
+![p_VIMP](/home/m_aglave/Bureau/scratch/bioinfo_core/B26026_LAZI_01/com/input/Fig1.d.png)
+<br><br>
+Fig.S3.a:  
+![p_VIMP](/home/m_aglave/Bureau/scratch/bioinfo_core/B26026_LAZI_01/com/input/FigS3.a.png)
+<br><br>
+**Review:**<br><br>
+![r_VIMP](/home/m_aglave/Bureau/scratch/bioinfo_core/B26026_LAZI_01/data_output/VIMP/vimp_grid_145_158.png)
+
+VIMP analysis across all iterations show that all models after iteration 153 included contain exclusively positive %VIMP scores, demonstrating that the last 6 models are potentially interesting.
+
+#### Alluvial plots with IBS and ROC AUC
+
+**Publication:**  
+
+"The final MDL–selected model retained eight predictors (Fig. 1c-d)[...]"  
+
+Fig.1.c:  
+![p_alluvial](/home/m_aglave/Bureau/scratch/bioinfo_core/B26026_LAZI_01/com/input/Fig1.c.png)
+<br><br>
+
+**Review:**<br><br>
+<iframe src="/home/m_aglave/Bureau/scratch/bioinfo_core/B26026_LAZI_01/data_output/Alluvial/df_alluvial_results_ablation_iteration_SABR_IML1.pdf" width="100%" height="800px"></iframe>
+
+```{r,eval = TRUE, echo = FALSE, results = 'asis'}
+score <- read.table("/home/m_aglave/Bureau/scratch/bioinfo_core/B26026_LAZI_01/data_output/performances_evaluation/IBS_summary_per_iteration.csv", header = TRUE, sep=",")
+score$`AUC t6` <- c(82.1,74.4,79.8,79.8,70.8,72.6,69.6,69.6,73.8,73.2,67.9,60.1,58.9,50.6)
+score$`AUC t12` <- c(82.4,73.1,81.9,80.3,77.3,83.6,78.2,76.9,78.6,73.5,74.4,68.5,66.4,68.9)
+
+knitr::kable(
+  x = score
+)
+```
+
+From iteration 153 onwards, the best ISB score is held by iteration 154, followed by iteration 155, and the best ROC AUC is held by iteration 153, followed by iteration 154.  
+
+
+#### Interpretation
+
+On the iteration 153 model, 6 of the 8 predictors have been found.
+
+| Predictors           | Found in publication model (iteration 153) | Found in reviewed model (iteration 153) | Recover |
+|----------------------|--------------------------------------------|-----------------------------------------|---------|
+| Age                  | Yes                                        | Yes                                     | Yes     |
+| BMI                  | Yes                                        | No                                      | No      |
+| Histidine            | Yes                                        | Yes                                     | Yes     |
+| Carnitine            | Yes                                        | No                                      | No      |
+| Creatinine           | Yes                                        | Yes                                     | Yes     |
+| Docosatrienoic acid  | Yes                                        | Yes                                     | Yes     |
+| Hexadecanedioic acid | Yes                                        | Yes                                     | Yes     |
+| Pentadecanoic acid   | No                                         | Yes                                     | NA      |
+| Succinic acid        | Yes                                        | Yes                                     | Yes     |
+| Tryptophan           | No                                         | Yes                                     | NA      |
+
+BMI and carnitine were not found in iteration 153 or in the surrounding +/-7 iterations. They were replaced by tryptophan and pentadecanoic acid.  
+Iteration 154 appears to have the best profile.  
+Histidine was by far the dominant major predictor, exhibiting consistently high and positive %VIMP across all models.  
+
+
+## Performance evaluation on IML1+SABR internal cohort (test dataset)  
+
+**Review:**<br><br>
+
+![AUC_external_IML1_model_IML1_SABR](/home/m_aglave/Bureau/scratch/bioinfo_core/B26026_LAZI_01/data_output/performances_evaluation/AUC_external_IML1_model_IML1_SABR145.png)
+![AUC_external_IML1_model_IML1_SABR](/home/m_aglave/Bureau/scratch/bioinfo_core/B26026_LAZI_01/data_output/performances_evaluation/AUC_external_IML1_model_IML1_SABR146.png)
+![AUC_external_IML1_model_IML1_SABR](/home/m_aglave/Bureau/scratch/bioinfo_core/B26026_LAZI_01/data_output/performances_evaluation/AUC_external_IML1_model_IML1_SABR147.png)
+![AUC_external_IML1_model_IML1_SABR](/home/m_aglave/Bureau/scratch/bioinfo_core/B26026_LAZI_01/data_output/performances_evaluation/AUC_external_IML1_model_IML1_SABR148.png)
+![AUC_external_IML1_model_IML1_SABR](/home/m_aglave/Bureau/scratch/bioinfo_core/B26026_LAZI_01/data_output/performances_evaluation/AUC_external_IML1_model_IML1_SABR149.png)
+![AUC_external_IML1_model_IML1_SABR](/home/m_aglave/Bureau/scratch/bioinfo_core/B26026_LAZI_01/data_output/performances_evaluation/AUC_external_IML1_model_IML1_SABR150.png)
+![AUC_external_IML1_model_IML1_SABR](/home/m_aglave/Bureau/scratch/bioinfo_core/B26026_LAZI_01/data_output/performances_evaluation/AUC_external_IML1_model_IML1_SABR151.png)
+![AUC_external_IML1_model_IML1_SABR](/home/m_aglave/Bureau/scratch/bioinfo_core/B26026_LAZI_01/data_output/performances_evaluation/AUC_external_IML1_model_IML1_SABR152.png)
+![AUC_external_IML1_model_IML1_SABR](/home/m_aglave/Bureau/scratch/bioinfo_core/B26026_LAZI_01/data_output/performances_evaluation/AUC_external_IML1_model_IML1_SABR153.png)
+![AUC_external_IML1_model_IML1_SABR](/home/m_aglave/Bureau/scratch/bioinfo_core/B26026_LAZI_01/data_output/performances_evaluation/AUC_external_IML1_model_IML1_SABR154.png)
+![AUC_external_IML1_model_IML1_SABR](/home/m_aglave/Bureau/scratch/bioinfo_core/B26026_LAZI_01/data_output/performances_evaluation/AUC_external_IML1_model_IML1_SABR155.png)
+![AUC_external_IML1_model_IML1_SABR](/home/m_aglave/Bureau/scratch/bioinfo_core/B26026_LAZI_01/data_output/performances_evaluation/AUC_external_IML1_model_IML1_SABR156.png)
+![AUC_external_IML1_model_IML1_SABR](/home/m_aglave/Bureau/scratch/bioinfo_core/B26026_LAZI_01/data_output/performances_evaluation/AUC_external_IML1_model_IML1_SABR157.png)
+![AUC_external_IML1_model_IML1_SABR](/home/m_aglave/Bureau/scratch/bioinfo_core/B26026_LAZI_01/data_output/performances_evaluation/AUC_external_IML1_model_IML1_SABR158.png)
+
+```{r,eval = TRUE, echo = FALSE, results = 'asis', warning = FALSE, message = FALSE}
+library(dplyr)
+AUC_scores <- read.table("/home/m_aglave/Bureau/scratch/bioinfo_core/B26026_LAZI_01/data_output/performances_evaluation/validation_on_IML1_SABR_model_IML1_SABR_AUC_t6_t12.csv", header = TRUE, sep=",")
+AUC_scores <- AUC_scores[AUC_scores$Time_months == 12,]
+AUC_scores <- AUC_scores[, c("iteration", "Time_months", "AUC", "CI_lower", "CI_upper")]
+rownames(AUC_scores) <- NULL
+knitr::kable(
+  x = AUC_scores
+)
+```
+
+All iterations give very good results on internal test IML1_SABR cohort.
+
+## Performance evaluation on PANDORA external cohort (test dataset)  
+
+**Publication:**  
+"The final MDL–selected model [...] achieved a 12 month-AUC of 73.1% (95% CI: 51.2–94.9) in PANDORE external validation (Fig. 1d-e, Fig. S3b)."
+
+Fig.1.e:  
+![p_PANDORA_eval](/home/m_aglave/Bureau/scratch/bioinfo_core/B26026_LAZI_01/com/input/Fig1.e.png)  
+Fig.S3.b:  
+![p_PANDORA_eval](/home/m_aglave/Bureau/scratch/bioinfo_core/B26026_LAZI_01/com/input/FigS3.b.png)  
+
+<br><br>
+
+**Review:**<br><br>
+![AUC_external_PANDORE_model_IML1_SABR](/home/m_aglave/Bureau/scratch/bioinfo_core/B26026_LAZI_01/data_output/performances_evaluation/AUC_external_PANDORE_model_IML1_SABR145.png)
+![AUC_external_PANDORE_model_IML1_SABR](/home/m_aglave/Bureau/scratch/bioinfo_core/B26026_LAZI_01/data_output/performances_evaluation/AUC_external_PANDORE_model_IML1_SABR146.png)
+![AUC_external_PANDORE_model_IML1_SABR](/home/m_aglave/Bureau/scratch/bioinfo_core/B26026_LAZI_01/data_output/performances_evaluation/AUC_external_PANDORE_model_IML1_SABR147.png)
+![AUC_external_PANDORE_model_IML1_SABR](/home/m_aglave/Bureau/scratch/bioinfo_core/B26026_LAZI_01/data_output/performances_evaluation/AUC_external_PANDORE_model_IML1_SABR148.png)
+![AUC_external_PANDORE_model_IML1_SABR](/home/m_aglave/Bureau/scratch/bioinfo_core/B26026_LAZI_01/data_output/performances_evaluation/AUC_external_PANDORE_model_IML1_SABR149.png)
+![AUC_external_PANDORE_model_IML1_SABR](/home/m_aglave/Bureau/scratch/bioinfo_core/B26026_LAZI_01/data_output/performances_evaluation/AUC_external_PANDORE_model_IML1_SABR150.png)
+![AUC_external_PANDORE_model_IML1_SABR](/home/m_aglave/Bureau/scratch/bioinfo_core/B26026_LAZI_01/data_output/performances_evaluation/AUC_external_PANDORE_model_IML1_SABR151.png)
+![AUC_external_PANDORE_model_IML1_SABR](/home/m_aglave/Bureau/scratch/bioinfo_core/B26026_LAZI_01/data_output/performances_evaluation/AUC_external_PANDORE_model_IML1_SABR152.png)
+![AUC_external_PANDORE_model_IML1_SABR](/home/m_aglave/Bureau/scratch/bioinfo_core/B26026_LAZI_01/data_output/performances_evaluation/AUC_external_PANDORE_model_IML1_SABR153.png)
+![AUC_external_PANDORE_model_IML1_SABR](/home/m_aglave/Bureau/scratch/bioinfo_core/B26026_LAZI_01/data_output/performances_evaluation/AUC_external_PANDORE_model_IML1_SABR154.png)
+![AUC_external_PANDORE_model_IML1_SABR](/home/m_aglave/Bureau/scratch/bioinfo_core/B26026_LAZI_01/data_output/performances_evaluation/AUC_external_PANDORE_model_IML1_SABR155.png)
+![AUC_external_PANDORE_model_IML1_SABR](/home/m_aglave/Bureau/scratch/bioinfo_core/B26026_LAZI_01/data_output/performances_evaluation/AUC_external_PANDORE_model_IML1_SABR156.png)
+![AUC_external_PANDORE_model_IML1_SABR](/home/m_aglave/Bureau/scratch/bioinfo_core/B26026_LAZI_01/data_output/performances_evaluation/AUC_external_PANDORE_model_IML1_SABR157.png)
+![AUC_external_PANDORE_model_IML1_SABR](/home/m_aglave/Bureau/scratch/bioinfo_core/B26026_LAZI_01/data_output/performances_evaluation/AUC_external_PANDORE_model_IML1_SABR158.png)
+
+```{r,eval = TRUE, echo = FALSE, results = 'asis', warning = FALSE, message = FALSE}
+library(dplyr)
+AUC_scores <- read.table("/home/m_aglave/Bureau/scratch/bioinfo_core/B26026_LAZI_01/data_output/performances_evaluation/validation_on_PANDORE_model_IML1_SABR_AUC_t6_t12.csv", header = TRUE, sep=",")
+AUC_scores <- AUC_scores[AUC_scores$Time_months == 12,]
+AUC_scores <- AUC_scores[, c("iteration", "Time_months", "AUC", "CI_lower", "CI_upper")]
+rownames(AUC_scores) <- NULL
+knitr::kable(
+  x = AUC_scores
+)
+```
+
+The model with 153 iteration model performed poorly with a 12 month-AUC of 51.9% (95% CI: 31.8–72.0) in PANDORE external validation, but the model with 154 iterations performed well, similar to the publication results, with a 12-month AUC of 73.1% (95% CI: 55.7–90.4).  
+
+
+## General Conclusion
+
+Regarding the code, it is well-written and relatively clear.
+The biggest challenge was formatting the input file to accommodate the various variables required for its operation (step "LOAD INITIAL DATA" from 01_main_workflow_reviewed.R script).
+Furthermore, handling of a few extreme cases had to be added to ensure the code functions correctly (specifically, when there are no more clinical variables in the model iteration).
+
+Regarding the results, the regenerated model appears to be slightly different from the one initially generated in the publication; in particular, the best iteration is 154 in the review versus 153 in the publication.
+
+Cette différence peut s'expliquer par la gestion de l'aléatoire dans la technique du randomForest qui est sensible à l'ordre et le nom des colonne qui lui sont donnés.
+
+Nevertheless, the two models are very similar in structure and results. In iteration 153 of the “reviewed” model, 6 of the 8 predictors were found (BMI and carnitine were absent). In iteration 154, Age was also lost.  
+In all cases, histidine consistently emerged as the dominant predictor, highlighting the robustness of this signal.  
+These results were also confirmed in both the internal test cohort (IML1_SABR) and the external test cohort (PANDORE).  
+For the purposes of this publication, it would be best not to dwell on the missing predictors, as they do not appear to be robust across iterations.  
+Finally, it is important to note that the other cohorts mentioned in the publication were not evaluated here.  
+
