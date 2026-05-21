@@ -9,9 +9,11 @@ This analysis was performed by M. Aglave from BIGR platform (bigr@gustaveroussy.
 The review process was carried out in two stages:  
 - regeneration of the results using the script 01_main_workflow_reviewed.R.  
 - comparison of the results obtained with those presented in the publication in the notebook using the 02_report.Rmd script.  
-To work in a controlled environment, the calculations were performed using singularity images on the Gustave Roussy HPC. They are available [here](https://zenodo.org/records/20324581).
 
-The report of the reviewing is [here](https://github.com/gustaveroussy/Publication_Metabolic-Prediction-of-Immunotherapy-Outcomes-by-Histidine-and-Fatty-Acids/blob/reviewed/B26026_LAZI_01_report.html).
+To work in a controlled environment, the calculations were performed using singularity images on the Gustave Roussy HPC. They are available [here](https://zenodo.org/records/20324581).  
+
+The report of the reviewing is [here](https://github.com/gustaveroussy/Publication_Metabolic-Prediction-of-Immunotherapy-Outcomes-by-Histidine-and-Fatty-Acids/blob/reviewed/B26026_LAZI_01_report.html).  
+
 ---
 
 # Overview
