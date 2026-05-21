@@ -1,3 +1,18 @@
+# This repository 
+This repository was created as a dedicated environment for code review and reproducibility assessment of the original analysis pipeline.  
+The goal was to independently rerun the analyses, validate the reported results, and evaluate the robustness of the identified predictors.  
+This separation from the main development repository ensures traceability of the review process and allows all modifications, tests, and validation steps performed during the review to be documented independently from the original workflow.  
+The original code is under [the main branch of this repository](https://github.com/gustaveroussy/Publication_Metabolic-Prediction-of-Immunotherapy-Outcomes-by-Histidine-and-Fatty-Acids/tree/main).  
+
+This analysis was performed by M. Aglave from BIGR platform (bigr@gustaveroussy.fr) in May 2026 based on the code and initial data, provided by L. Zitvogel's team.  
+
+The review process was carried out in two stages:  
+- regeneration of the results using the script 01_main_workflow_reviewed.R.  
+- comparison of the results obtained with those presented in the publication in the notebook using the 02_report.Rmd script.  
+To work in a controlled environment, the calculations were performed using singularity images on the Gustave Roussy HPC. They are available [here](https://zenodo.org/records/20324581).
+
+---
+
 # Overview
 
 This repository provides a complete R implementation of an iterative ablation workflow for DynForest survival models applied to longitudinal metabolomics and clinical data.
