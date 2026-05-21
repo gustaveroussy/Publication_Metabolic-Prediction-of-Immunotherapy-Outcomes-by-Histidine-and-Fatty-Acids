@@ -32,7 +32,7 @@ The review process was carried out in two stages:
 
 In this notebook we will perform comparisons of the following:  
 1. Model building (Variable Importance (VIMP) plots  , and Alluvial plots)  
-2. Performance evaluation on IML1+SABR internal cohort  
+2. Performance evaluation on IML1_SABR internal cohort  
 3. Performance evaluation on PANDORA external cohort  
 
 ## Explanation of the analysis steps
@@ -40,7 +40,7 @@ The goal is to predict whether a patient will respond to immunotherapy, using th
 
 **Step 1: The Random Forest**  
 The mathematical model is built using the DynForest method.  
-DynForest constructs 50 decision trees ("the forest"). Each tree learns to predict patient survival by asking a series of questions such as "Is this patient's histidine level above or below a certain threshold?" Each tree is trained on a random subsample of patients (the bootstrap—approximately 63% of patients), which means that each tree is slightly different. The final prediction is the average of all the trees, making the model much more robust than a single tree.  
+DynForest constructs 50 decision trees ("the forest"). Each tree learns to predict patient survival by asking a series of questions such as "Is this patient's histidine level above or below a certain threshold?" Each tree is trained on a random subsample of patients, which means that each tree is slightly different. The final prediction is the average of all the trees, making the model much more robust than a single tree.  
 
 **Step 2: The Importance of Variables (VIMP)**  
 To determine which metabolites are most useful, the model calculates the VIMP (Variable Importance Permutation). It randomly swaps the values of a metabolite and measures how much its performance degrades. If performance drops significantly when a metabolite is permuted, it is considered highly informative. If performance remains unchanged, the metabolite provides no benefit.  
@@ -55,7 +55,7 @@ We compare the performance of each iteration using two metrics:
 The best iteration is the one that combines the fewest predictors possible with the best performance. This is where we identify the most biologically relevant metabolites for predicting the response to immunotherapy.  
 
 **Step 5: Final Model Validation**  
-The final model was validated in two complementary steps. Internally, its performance was evaluated on out-of-bag samples (i.e., patients not used during the training of each tree) via AUC at 12 months. Externally, the model was then applied as is to an independent cohort (PANDORE) to confirm its generalizability to patients who had never contributed to its training, thus strengthening the biological and clinical robustness of the metabolites identified as predictors of response to immunotherapy.  
+The final model was validated in two complementary steps. Internally, its performance was evaluated internal cohort (IML1_SABR) via AUC at 12 months. Externally, the model was then applied as is to an independent cohort (PANDORE) to confirm its generalizability to patients who had never contributed to its training, thus strengthening the biological and clinical robustness of the metabolites identified.  
 
 **IBS Usual Scale:**  
 
@@ -154,24 +154,24 @@ These variations are expected in this type of stochastic approach and do not inv
 Some markers are not consistently found, suggesting limited robustness and calling for a cautious interpretation of their biological contribution. Conversely, histidine remains consistently identified as the main predictor in all models evaluated, even despite these technical variations, which reinforces confidence in the robustness and reproducibility of this specific signal.  
 
 
-## Performance evaluation on IML1+SABR internal cohort (test dataset)  
+## Performance evaluation on IML1_SABR internal cohort
 
 **Review:**<br><br>
 
-![AUC_external_IML1_model_IML1_SABR](/mnt/beegfs01/scratch/bioinfo_core/B26026_LAZI_01/data_output/performances_evaluation/AUC_external_IML1_model_IML1_SABR145.png)
-![AUC_external_IML1_model_IML1_SABR](/mnt/beegfs01/scratch/bioinfo_core/B26026_LAZI_01/data_output/performances_evaluation/AUC_external_IML1_model_IML1_SABR146.png)
-![AUC_external_IML1_model_IML1_SABR](/mnt/beegfs01/scratch/bioinfo_core/B26026_LAZI_01/data_output/performances_evaluation/AUC_external_IML1_model_IML1_SABR147.png)
-![AUC_external_IML1_model_IML1_SABR](/mnt/beegfs01/scratch/bioinfo_core/B26026_LAZI_01/data_output/performances_evaluation/AUC_external_IML1_model_IML1_SABR148.png)
-![AUC_external_IML1_model_IML1_SABR](/mnt/beegfs01/scratch/bioinfo_core/B26026_LAZI_01/data_output/performances_evaluation/AUC_external_IML1_model_IML1_SABR149.png)
-![AUC_external_IML1_model_IML1_SABR](/mnt/beegfs01/scratch/bioinfo_core/B26026_LAZI_01/data_output/performances_evaluation/AUC_external_IML1_model_IML1_SABR150.png)
-![AUC_external_IML1_model_IML1_SABR](/mnt/beegfs01/scratch/bioinfo_core/B26026_LAZI_01/data_output/performances_evaluation/AUC_external_IML1_model_IML1_SABR151.png)
-![AUC_external_IML1_model_IML1_SABR](/mnt/beegfs01/scratch/bioinfo_core/B26026_LAZI_01/data_output/performances_evaluation/AUC_external_IML1_model_IML1_SABR152.png)
-![AUC_external_IML1_model_IML1_SABR](/mnt/beegfs01/scratch/bioinfo_core/B26026_LAZI_01/data_output/performances_evaluation/AUC_external_IML1_model_IML1_SABR153.png)
-![AUC_external_IML1_model_IML1_SABR](/mnt/beegfs01/scratch/bioinfo_core/B26026_LAZI_01/data_output/performances_evaluation/AUC_external_IML1_model_IML1_SABR154.png)
-![AUC_external_IML1_model_IML1_SABR](/mnt/beegfs01/scratch/bioinfo_core/B26026_LAZI_01/data_output/performances_evaluation/AUC_external_IML1_model_IML1_SABR155.png)
-![AUC_external_IML1_model_IML1_SABR](/mnt/beegfs01/scratch/bioinfo_core/B26026_LAZI_01/data_output/performances_evaluation/AUC_external_IML1_model_IML1_SABR156.png)
-![AUC_external_IML1_model_IML1_SABR](/mnt/beegfs01/scratch/bioinfo_core/B26026_LAZI_01/data_output/performances_evaluation/AUC_external_IML1_model_IML1_SABR157.png)
-![AUC_external_IML1_model_IML1_SABR](/mnt/beegfs01/scratch/bioinfo_core/B26026_LAZI_01/data_output/performances_evaluation/AUC_external_IML1_model_IML1_SABR158.png)
+![AUC_internal_IML1_model_IML1_SABR](/mnt/beegfs01/scratch/bioinfo_core/B26026_LAZI_01/data_output/performances_evaluation/AUC_internal_IML1_model_IML1_SABR145.png)
+![AUC_internal_IML1_model_IML1_SABR](/mnt/beegfs01/scratch/bioinfo_core/B26026_LAZI_01/data_output/performances_evaluation/AUC_internal_IML1_model_IML1_SABR146.png)
+![AUC_internal_IML1_model_IML1_SABR](/mnt/beegfs01/scratch/bioinfo_core/B26026_LAZI_01/data_output/performances_evaluation/AUC_internal_IML1_model_IML1_SABR147.png)
+![AUC_internal_IML1_model_IML1_SABR](/mnt/beegfs01/scratch/bioinfo_core/B26026_LAZI_01/data_output/performances_evaluation/AUC_internal_IML1_model_IML1_SABR148.png)
+![AUC_internal_IML1_model_IML1_SABR](/mnt/beegfs01/scratch/bioinfo_core/B26026_LAZI_01/data_output/performances_evaluation/AUC_internal_IML1_model_IML1_SABR149.png)
+![AUC_internal_IML1_model_IML1_SABR](/mnt/beegfs01/scratch/bioinfo_core/B26026_LAZI_01/data_output/performances_evaluation/AUC_internal_IML1_model_IML1_SABR150.png)
+![AUC_internal_IML1_model_IML1_SABR](/mnt/beegfs01/scratch/bioinfo_core/B26026_LAZI_01/data_output/performances_evaluation/AUC_internal_IML1_model_IML1_SABR151.png)
+![AUC_internal_IML1_model_IML1_SABR](/mnt/beegfs01/scratch/bioinfo_core/B26026_LAZI_01/data_output/performances_evaluation/AUC_internal_IML1_model_IML1_SABR152.png)
+![AUC_internal_IML1_model_IML1_SABR](/mnt/beegfs01/scratch/bioinfo_core/B26026_LAZI_01/data_output/performances_evaluation/AUC_internal_IML1_model_IML1_SABR153.png)
+![AUC_internal_IML1_model_IML1_SABR](/mnt/beegfs01/scratch/bioinfo_core/B26026_LAZI_01/data_output/performances_evaluation/AUC_internal_IML1_model_IML1_SABR154.png)
+![AUC_internal_IML1_model_IML1_SABR](/mnt/beegfs01/scratch/bioinfo_core/B26026_LAZI_01/data_output/performances_evaluation/AUC_internal_IML1_model_IML1_SABR155.png)
+![AUC_internal_IML1_model_IML1_SABR](/mnt/beegfs01/scratch/bioinfo_core/B26026_LAZI_01/data_output/performances_evaluation/AUC_internal_IML1_model_IML1_SABR156.png)
+![AUC_internal_IML1_model_IML1_SABR](/mnt/beegfs01/scratch/bioinfo_core/B26026_LAZI_01/data_output/performances_evaluation/AUC_internal_IML1_model_IML1_SABR157.png)
+![AUC_internal_IML1_model_IML1_SABR](/mnt/beegfs01/scratch/bioinfo_core/B26026_LAZI_01/data_output/performances_evaluation/AUC_internal_IML1_model_IML1_SABR158.png)
 
 ```{r perform_internal, eval = TRUE, echo = FALSE, results = 'asis', warning = FALSE, message = FALSE}
 library(dplyr)
@@ -184,9 +184,9 @@ knitr::kable(
 )
 ```
 
-All iterations give very good results on internal test IML1_SABR cohort.
+All iterations give very good results on internal IML1_SABR cohort as expected.
 
-## Performance evaluation on PANDORA external cohort (test dataset)  
+## Performance evaluation on PANDORA external cohort
 
 **Publication:**  
 "The final MDL–selected model [...] achieved a 12 month-AUC of 73.1% (95% CI: 51.2–94.9) in PANDORE external validation (Fig. 1d-e, Fig. S3b)."
@@ -238,5 +238,6 @@ Reproducibility analyses performed between the different models show slightly di
 In particular, the “reviewed” model recovers 6 of the 8 initial predictors at iteration 153, with BMI and carnitine no longer being selected. At iteration 154, the Age variable is also lost.  
 The differences observed between the models can be explained by several technical factors inherent to Random Forest and DynForest approaches. In particular, the absence of a fixed seed during training leads to natural variability related to the bootstrapping steps and the random selection of variables used to construct the trees. Furthermore, minor differences in the structure of the input data can also influence the final model composition. These variations are expected in this type of stochastic approach and do not invalidate the overall results.  
 Despite these variations between iterations, histidine consistently remains the primary and by far the most significant predictor across all evaluated models, thus highlighting the robustness and stability of this biomarker.  
-This observation was confirmed in both the internal validation cohort IML1_SABR and the external validation cohort PANDORE, reinforcing the credibility of the identified signal. Conversely, the predictors not consistently recovered appear less robust and should be interpreted with caution in the context of publication.  
+This observation was confirmed in the external validation cohort PANDORE, reinforcing the credibility of the identified signal.  
+Conversely, the predictors not consistently recovered appear less robust and should be interpreted with caution in the context of publication.  
 Finally, it should be noted that the other cohorts mentioned in the study were not evaluated in this reviewed analysis.  

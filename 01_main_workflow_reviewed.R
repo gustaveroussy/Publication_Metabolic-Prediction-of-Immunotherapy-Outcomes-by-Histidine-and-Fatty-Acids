@@ -231,10 +231,10 @@ ggsave(paste0(project_path,"data_output/performances_evaluation/IBS_ablation_mod
 
 
 # --- PERFORMANCES EVALUATION: Calculation of internal AUC --- # 
-results_external_IML1_SABR_ablation_iteration_SABR_IML1 <- list()
+results_internal_IML1_SABR_ablation_iteration_SABR_IML1 <- list()
 last_valid_iteration <- NA
 for (iteration_num in c(145:158)) {
-  cat(paste0("\n===== Running external validation on iteration ", iteration_num, " =====\n"))
+  cat(paste0("\n===== Running internal validation on iteration ", iteration_num, " =====\n"))
   result <- NULL
   tryCatch({
     result <- eval_dynforest_on_external_cohort(
@@ -245,7 +245,7 @@ for (iteration_num in c(145:158)) {
       time_chr = "PFS",
       event_chr = "PD",
       clinical_times = c(3, 6, 12, 18, 24),
-      plot_path = paste0(project_path,"data_output/performances_evaluation/AUC_external_IML1_model_IML1_SABR", iteration_num, ".pdf"))
+      plot_path = paste0(project_path,"data_output/performances_evaluation/AUC_internal_IML1_SABR_model_IML1_SABR", iteration_num, ".pdf"))
   }, error = function(e) { 
       cat("Error iteration", iteration_num, ":", e$message, "\n")
       return(NULL)  
@@ -262,7 +262,7 @@ for (iteration_num in c(145:158)) {
     cat(paste0("🛑 Early stopping: iteration ", iteration_num, " fails AUC/CI thresholds.\n"))
   }
   # If valid, download
-  results_external_IML1_SABR_ablation_iteration_SABR_IML1[[paste0("iteration_", iteration_num)]] <- result
+  results_internal_IML1_SABR_ablation_iteration_SABR_IML1[[paste0("iteration_", iteration_num)]] <- result
   last_valid_iteration <- iteration_num
   print(result$AUC_table)
 }
@@ -273,7 +273,7 @@ if (!is.na(last_valid_iteration)) {
 }
 
 # Transform into a dataframe
-df_auc <- imap_dfr(results_external_IML1_SABR_ablation_iteration_SABR_IML1, ~{
+df_auc <- imap_dfr(results_internal_IML1_SABR_ablation_iteration_SABR_IML1, ~{
   .x$AUC_table %>%
     mutate(iteration = .y)
 })
@@ -294,7 +294,7 @@ p <- ggplot(df_auc, aes(x = Time_months, y = AUC, color = iteration)) +
   geom_errorbar(aes(ymin = CI_lower, ymax = CI_upper), width = 0.6, size = 0.7) +
   scale_y_continuous(limits = c(0, 100), breaks = seq(0, 100, 10)) +
   labs(
-    title = "External Validation of DynForest Ablation iterations on PANDORE",
+    title = "Internal Validation of DynForest Ablation iterations on PANDORE",
     x = "Time (months)",
     y = "AUC (%)",
     color = "iteration"
@@ -419,9 +419,6 @@ grid_plot <- wrap_plots(vimp_plots, ncol = 4)
 # Sauvegarder sur Desktop
 dir.create(paste0(project_path,"data_output/VIMP/"), showWarnings = FALSE, recursive = TRUE)
 ggsave(paste0(project_path,"data_output/VIMP/vimp_grid_145_158.pdf"), grid_plot, width = 20, height = 18)
-
-
-
 
 
 
