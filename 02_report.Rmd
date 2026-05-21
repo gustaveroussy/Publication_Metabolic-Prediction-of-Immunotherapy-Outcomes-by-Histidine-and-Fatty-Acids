@@ -1,6 +1,6 @@
 ---
 title: "Publication Reviewing: Metabolic Prediction of Immunotherapy Outcomes by Histidine and Fatty Acids (D.Suissa et al., 2026)"
-date: "2026-05-20"
+date: "2026-05-21"
 author:
   - name: "BiGR: Bioinformatics core facility of Gustave Roussy"
     email: "bigr@gustaveroussy.fr"
