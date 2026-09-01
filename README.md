@@ -1,7 +1,7 @@
 # This branch
 This branch was created as a dedicated environment for code review and reproducibility assessment of the original analysis pipeline.  
 The goal was to independently rerun the analyses, validate the reported results, and evaluate the robustness of the identified predictors.  
-This separation from the main development repository ensures traceability of the review process and allows all modifications, tests, and validation steps performed during the review to be documented independently from the original workflow.  
+This separation from the main development branch ensures traceability of the review process and allows all modifications, tests, and validation steps performed during the review to be documented independently from the original workflow.  
 The original code is under [the main branch](https://github.com/gustaveroussy/Publication_Metabolic-Prediction-of-Immunotherapy-Outcomes-by-Histidine-and-Fatty-Acids/tree/main) of this repository.  
 
 This analysis was performed by M. Aglave from BIGR platform (bigr@gustaveroussy.fr) in May 2026 based on the code and initial data, provided by L. Zitvogel's team.  
