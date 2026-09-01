@@ -1,5 +1,5 @@
-# This repository 
-This repository was created as a dedicated environment for code review and reproducibility assessment of the original analysis pipeline.  
+# This branch
+This branch was created as a dedicated environment for code review and reproducibility assessment of the original analysis pipeline.  
 The goal was to independently rerun the analyses, validate the reported results, and evaluate the robustness of the identified predictors.  
 This separation from the main development repository ensures traceability of the review process and allows all modifications, tests, and validation steps performed during the review to be documented independently from the original workflow.  
 The original code is under [the main branch](https://github.com/gustaveroussy/Publication_Metabolic-Prediction-of-Immunotherapy-Outcomes-by-Histidine-and-Fatty-Acids/tree/main) of this repository.  
